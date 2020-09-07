@@ -1,4 +1,4 @@
-package main
+package rest
 
 import (
 	"context"
@@ -9,18 +9,18 @@ import (
 
 const KeyForHandlerInterface = "HANDLER_INTERFACE_ACCESS_KEY"
 
-type RestHandler struct {
+type RestfulHandler struct {
 	Config map[string]HandlerInterface
 	router *chi.Mux
 }
 
-func (t *RestHandler) InitRouter(config map[string]HandlerInterface) {
+func (t *RestfulHandler) InitRouter(config map[string]HandlerInterface) {
 	t.Config = config
 
 	t.router = chi.NewRouter()
 	t.router.Use(middleware.Logger)
 
-	t.router.Route("/{element}/single", func(r chi.Router) {
+	t.router.Route("/single/{element}", func(r chi.Router) {
 		r.Use(t.AddContext)
 		r.Get("/", GetOne)
 		r.Post("/", AddOne)
@@ -37,7 +37,7 @@ func (t *RestHandler) InitRouter(config map[string]HandlerInterface) {
 	return
 }
 
-func (t *RestHandler) AddContext(next http.Handler) http.Handler {
+func (t *RestfulHandler) AddContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		element := chi.URLParam(r, "element")
 
@@ -54,7 +54,7 @@ func (t *RestHandler) AddContext(next http.Handler) http.Handler {
 	})
 }
 
-func (t *RestHandler) Handle() (err error) {
+func (t *RestfulHandler) Handle() (err error) {
 	err = http.ListenAndServe(":80", t.router)
 
 	if err != nil {

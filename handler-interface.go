@@ -1,4 +1,6 @@
-package main
+package rest
+
+import "net/http"
 
 type HandlerInterface interface {
 	Get(w http.ResponseWriter, r *http.Request)
@@ -8,4 +10,3 @@ type HandlerInterface interface {
 	Delete(w http.ResponseWriter, r *http.Request)
 	DeleteOne(w http.ResponseWriter, r *http.Request)
 }
-

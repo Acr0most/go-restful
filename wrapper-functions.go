@@ -1,4 +1,6 @@
-package main
+package rest
+
+import "net/http"
 
 func Get(w http.ResponseWriter, r *http.Request) {
 	r.Context().Value(KeyForHandlerInterface).(HandlerInterface).Get(w, r)
