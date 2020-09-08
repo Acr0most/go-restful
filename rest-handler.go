@@ -36,8 +36,6 @@ func (t *RestfulHandler) InitRouter(config map[string]HandlerInterface, port int
 		r.Post("/", Add)
 		r.Delete("/", Delete)
 	})
-
-	return
 }
 
 func (t *RestfulHandler) AddContext(next http.Handler) http.Handler {
