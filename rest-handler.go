@@ -12,7 +12,7 @@ const KeyForHandlerInterface = "HANDLER_INTERFACE_CONTROL_KEY"
 
 type RestfulHandler struct {
 	Config map[string]HandlerInterface
-	router *chi.Mux
+	Router *chi.Mux
 	port   int
 }
 
@@ -20,17 +20,17 @@ func (t *RestfulHandler) InitRouter(config map[string]HandlerInterface, port int
 	t.port = port
 	t.Config = config
 
-	t.router = chi.NewRouter()
-	t.router.Use(middleware.Logger)
+	t.Router = chi.NewRouter()
+	t.Router.Use(middleware.Logger)
 
-	t.router.Route("/{config-element}/{id}", func(r chi.Router) {
+	t.Router.Route("/{config-element}/{id}", func(r chi.Router) {
 		r.Use(t.AddContext)
 		r.Get("/", GetOne)
 		r.Post("/", AddOne)
 		r.Delete("/", DeleteOne)
 	})
 
-	t.router.Route("/{config-element}", func(r chi.Router) {
+	t.Router.Route("/{config-element}", func(r chi.Router) {
 		r.Use(t.AddContext)
 		r.Get("/", Get)
 		r.Post("/", Add)
@@ -56,7 +56,7 @@ func (t *RestfulHandler) AddContext(next http.Handler) http.Handler {
 }
 
 func (t *RestfulHandler) Handle() (err error) {
-	err = http.ListenAndServe(":"+strconv.Itoa(t.port), t.router)
+	err = http.ListenAndServe(":"+strconv.Itoa(t.port), t.Router)
 
 	if err != nil {
 		return err
