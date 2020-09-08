@@ -8,6 +8,21 @@ Then this package helps you a lot.
 All what you need is a mapping from the url slug for an entity and a handler behind. 
 Creating the routes and navigate the request to your custom handler is done by this package.   
 
+# installation
+```bash
+go get github.com/Acr0most/go-restful
+```
+-- OR --
+```go
+import (
+    "github.com/Acr0most/go-restful"
+)
+```
+
+```bash
+go mod tidy
+```
+
 # example
 In the example folder you can see a tiny project that creates the server for an example handler.
 
