@@ -52,12 +52,13 @@ func (t ConnectorHandler) UpdateOne(w http.ResponseWriter, r *http.Request) {
 func (t ConnectorHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
 
-	t.Connector.Delete(t.MapParamsFromQuery(r), dummy)
-	_, _ = w.Write([]byte("example: delete"))
+	t.Connector.Delete(t.MapAllParams(r), dummy)
+
+	_, _ = w.Write([]byte("done"))
 }
 
 func (t ConnectorHandler) DeleteOne(w http.ResponseWriter, r *http.Request) {
-	_, _ = w.Write([]byte("example: delete one"))
+	t.Delete(w, r)
 }
 
 func (t *ConnectorHandler) MapParamsFromQuery(r *http.Request) (params map[string]interface{}) {
@@ -66,6 +67,26 @@ func (t *ConnectorHandler) MapParamsFromQuery(r *http.Request) (params map[strin
 
 	for key, values := range query {
 		params[key] = values
+	}
+
+	return
+}
+
+func (t *ConnectorHandler) MapParamsFromPost(r *http.Request) (params map[string]interface{}) {
+	err := json.NewDecoder(r.Body).Decode(&params)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return
+}
+
+func (t *ConnectorHandler) MapAllParams(r *http.Request) (params map[string]interface{}) {
+	params = t.MapParamsFromQuery(r)
+
+	for key, value := range t.MapParamsFromPost(r) {
+		params[key] = value // TODO: Merge?
 	}
 
 	return
