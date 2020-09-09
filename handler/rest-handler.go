@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	gorest_middleware "github.com/Acr0most/go-restful/middleware"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"net/http"
@@ -36,6 +37,7 @@ func (t *RestfulHandler) InitRouter(config Config, port int) {
 	t.Router.Use(middleware.Logger)
 
 	t.Router.Route("/{config-element}/{id}", func(r chi.Router) {
+		r.Use(gorest_middleware.RequestMapper)
 		r.Use(t.AddContext)
 		r.Get("/", GetOne)
 		r.Post("/", AddOne)
@@ -44,6 +46,7 @@ func (t *RestfulHandler) InitRouter(config Config, port int) {
 	})
 
 	t.Router.Route("/{config-element}", func(r chi.Router) {
+		r.Use(gorest_middleware.RequestMapper)
 		r.Use(t.AddContext)
 		r.Get("/", Get)
 		r.Post("/", Add)
