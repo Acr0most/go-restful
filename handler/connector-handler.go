@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"github.com/Acr0most/go-restful/connector"
+	"github.com/go-chi/chi"
 	"net/http"
 )
 
@@ -13,7 +14,14 @@ type ConnectorHandler struct {
 func (t ConnectorHandler) Get(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
 
-	if success := t.Connector.Find(t.MapParamsFromQuery(r), dummy); !success {
+	params := t.MapParamsFromQuery(r)
+	id := chi.URLParam(r, "id")
+
+	if id != "" {
+		params["id"] = id
+	}
+
+	if success := t.Connector.Find(params, dummy); !success {
 		dummy = nil
 	}
 
@@ -51,8 +59,14 @@ func (t ConnectorHandler) UpdateOne(w http.ResponseWriter, r *http.Request) {
 
 func (t ConnectorHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
+	params := t.MapAllParams(r)
+	id := chi.URLParam(r, "id")
 
-	t.Connector.Delete(t.MapAllParams(r), dummy)
+	if id != "" {
+		params["id"] = id
+	}
+
+	t.Connector.Delete(params, dummy)
 
 	_, _ = w.Write([]byte("done"))
 }
