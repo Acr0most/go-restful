@@ -14,14 +14,14 @@ CREATE TABLE IF NOT EXISTS `examples` (
   `created_at` datetime,
   `updated_at` datetime,
   `deleted_at` datetime,
-  `description` varchar(255),
+  `name` varchar(255),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 */
 
 type Example struct {
 	CommonModelFields
-	description string
+	Name string `json:"name"`
 }
 
 type CommonModelFields struct {
@@ -35,7 +35,7 @@ func main() {
 	handle := handler.RestfulHandler{}
 
 	connection := connector.NewGorm(connector.Config{MaxRetries: 10, IntervalMs: 1000})
-	connection.Connect(mysql.Open("<user>:<password>@tcp(<server>:<port>)/<database>?<options>"))
+	connection.Connect(mysql.Open("root:rootpw@tcp(127.0.0.1:6743)/example?charset=utf8mb4&parseTime=True&loc=Local"))
 
 	handle.InitRouter(handler.Config{
 		Handler: map[string]handler.HandlerInterface{
