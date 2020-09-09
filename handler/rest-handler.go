@@ -9,14 +9,25 @@ import (
 )
 
 const KeyForHandlerInterface = "HANDLER_INTERFACE_CONTROL_KEY"
+const KeyForConnectorPlaceholder = "CONNECTOR_PLACEHOLDER_CONTROL_KEY"
+
+type Dummy struct {
+	Single   interface{}
+	Multiple interface{}
+}
+
+type Config struct {
+	Handler map[string]HandlerInterface
+	Dummy   Dummy
+}
 
 type RestfulHandler struct {
-	Config map[string]HandlerInterface
+	Config Config
 	Router *chi.Mux
 	port   int
 }
 
-func (t *RestfulHandler) InitRouter(config map[string]HandlerInterface, port int) {
+func (t *RestfulHandler) InitRouter(config Config, port int) {
 	t.port = port
 	t.Config = config
 
@@ -40,16 +51,27 @@ func (t *RestfulHandler) InitRouter(config map[string]HandlerInterface, port int
 
 func (t *RestfulHandler) AddContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		element := chi.URLParam(r, "config-element")
+		var ctx context.Context
 
-		if _, exists := t.Config[element]; !exists {
+		element := chi.URLParam(r, "config-element")
+		isSingle := chi.URLParam(r, "id") != ""
+
+		if _, exists := t.Config.Handler[element]; !exists {
 			w.WriteHeader(404)
 			_, _ = w.Write([]byte("Unknown requested entity. FIX by: adding >" + element + "< to an existing handler."))
 
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), KeyForHandlerInterface, t.Config[element])
+		ctx = context.WithValue(r.Context(), KeyForHandlerInterface, t.Config.Handler[element])
+		r.WithContext(ctx)
+
+		switch isSingle {
+		case true:
+			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, t.Config.Dummy.Single)
+		default:
+			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, t.Config.Dummy.Multiple)
+		}
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
