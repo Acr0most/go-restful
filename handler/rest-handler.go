@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"net/http"
+	"reflect"
 	"strconv"
 )
 
@@ -68,9 +69,9 @@ func (t *RestfulHandler) AddContext(next http.Handler) http.Handler {
 
 		switch isSingle {
 		case true:
-			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, t.Config.Dummy.Single)
+			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, reflect.New(reflect.ValueOf(t.Config.Dummy.Single).Elem().Type()).Interface())
 		default:
-			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, t.Config.Dummy.Multiple)
+			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, reflect.New(reflect.ValueOf(t.Config.Dummy.Multiple).Elem().Type()).Interface())
 		}
 
 		next.ServeHTTP(w, r.WithContext(ctx))
