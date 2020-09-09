@@ -1,17 +1,23 @@
 package main
 
 import (
-	"github.com/Acr0most/go-restful"
+	"github.com/Acr0most/go-restful/handler"
 )
 
-func main() {
-	handler := rest.RestfulHandler{}
+type Example struct{}
 
-	handler.InitRouter(map[string]rest.HandlerInterface{
-		"example": ExampleHandler{},
+func main() {
+	handle := handler.RestfulHandler{}
+
+	handle.InitRouter(handler.Config{
+		Handler: map[string]handler.HandlerInterface{"example": ExampleHandler{}},
+		Dummy: handler.Dummy{
+			Single:   &Example{},
+			Multiple: &[]Example{},
+		},
 	}, 80)
 
-	err := handler.Handle()
+	err := handle.Handle()
 
 	if err != nil {
 		panic(err)
