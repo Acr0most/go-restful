@@ -3,7 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"github.com/Acr0most/go-restful/connector"
-	"github.com/go-chi/chi"
+	"github.com/Acr0most/go-restful/middleware"
+	"github.com/mitchellh/mapstructure"
 	"net/http"
 )
 
@@ -13,15 +14,9 @@ type ConnectorHandler struct {
 
 func (t ConnectorHandler) Get(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
+	request := r.Context().Value(middleware.RequestKey).(middleware.Request)
 
-	params := t.MapParamsFromQuery(r)
-	id := chi.URLParam(r, "id")
-
-	if id != "" {
-		params["id"] = id
-	}
-
-	if success := t.Connector.Find(params, dummy); !success {
+	if success := t.Connector.Find(request.Filter, dummy); !success {
 		dummy = nil
 	}
 
@@ -33,9 +28,10 @@ func (t ConnectorHandler) GetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t ConnectorHandler) Add(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
-	err := decoder.Decode(dummy)
+	request := r.Context().Value(middleware.RequestKey).(middleware.Request)
+
+	err := mapstructure.Decode(request.GetPayload(), &dummy)
 
 	if err != nil {
 		panic(err)
@@ -59,14 +55,9 @@ func (t ConnectorHandler) UpdateOne(w http.ResponseWriter, r *http.Request) {
 
 func (t ConnectorHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
-	params := t.MapAllParams(r)
-	id := chi.URLParam(r, "id")
+	request := r.Context().Value(middleware.RequestKey).(middleware.Request)
 
-	if id != "" {
-		params["id"] = id
-	}
-
-	t.Connector.Delete(params, dummy)
+	t.Connector.Delete(request.GetMerged(), dummy)
 
 	_, _ = w.Write([]byte("done"))
 }
@@ -77,59 +68,15 @@ func (t ConnectorHandler) DeleteOne(w http.ResponseWriter, r *http.Request) {
 
 func (t ConnectorHandler) Patch(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
-	filter := t.MapParamsFromQuery(r)
-	patch := t.MapParamsFromPost(r)
+	request := r.Context().Value(middleware.RequestKey).(middleware.Request)
 
-	id := chi.URLParam(r, "id")
-
-	if id != "" {
-		filter["id"] = id
-	} else {
-		for _, id := range []string{"id", "ID"} {
-			if _, exists := patch[id]; exists {
-				filter[id] = patch[id]
-			}
-		}
-	}
-
-	t.Connector.Patch(filter, patch, dummy)
+	t.Connector.Patch(request.Filter, request.GetPayload(), dummy)
 
 	_, _ = w.Write([]byte("todo.."))
 }
 
 func (t ConnectorHandler) PatchOne(w http.ResponseWriter, r *http.Request) {
 	t.Patch(w, r)
-}
-
-func (t *ConnectorHandler) MapParamsFromQuery(r *http.Request) (params map[string]interface{}) {
-	query := r.URL.Query()
-	params = make(map[string]interface{}, len(query))
-
-	for key, values := range query {
-		params[key] = values
-	}
-
-	return
-}
-
-func (t *ConnectorHandler) MapParamsFromPost(r *http.Request) (params map[string]interface{}) {
-	err := json.NewDecoder(r.Body).Decode(&params)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return
-}
-
-func (t *ConnectorHandler) MapAllParams(r *http.Request) (params map[string]interface{}) {
-	params = t.MapParamsFromQuery(r)
-
-	for key, value := range t.MapParamsFromPost(r) {
-		params[key] = value // TODO: Merge?
-	}
-
-	return
 }
 
 func (t *ConnectorHandler) CreateResponse(w http.ResponseWriter, object interface{}) {
