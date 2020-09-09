@@ -1,9 +1,19 @@
 # about
 This package provides functionality to generate rest routes mapped to your own handler.
 
+# features
+- generate restful api endpoints with your custom handler
+- generate restful api connected to database with gorm and default handler (json)
+
+# working on
+- add normal database connectors
+- add multiple response format handlers like xml and csv
+- bug fixing
+- unit tests
+
 # how-to
 You don't want create multiple endpoints to create a RESTFUL api and add duplicated code?
-Then this package helps you a lot.
+Then this package could help you.
 
 All what you need is a mapping from the url slug for an entity and a handler behind. 
 Creating the routes and navigate the request to your custom handler is done by this package.   
