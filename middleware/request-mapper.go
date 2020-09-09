@@ -80,12 +80,17 @@ func mapParamsFromPost(r *http.Request) (params []map[string]interface{}, isSing
 	_, _ = buf.ReadFrom(r.Body)
 	str := buf.String()
 
-	isSingle = true
-	params = mapInterfaceMap(str)
+	if len(str) == 0 {
+		return
+	}
 
-	if len(params) == 0 {
+	switch str[:1] {
+	case "[":
 		isSingle = false
 		params = mapSliceOfInterface(str)
+	default:
+		isSingle = true
+		params = mapInterfaceMap(str)
 	}
 
 	return
