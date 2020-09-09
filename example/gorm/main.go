@@ -38,11 +38,12 @@ func main() {
 	connection.Connect(mysql.Open("root:rootpw@tcp(127.0.0.1:6743)/example?charset=utf8mb4&parseTime=True&loc=Local"))
 
 	handle.InitRouter(handler.Config{
-		Handler: map[string]handler.HandlerInterface{
-			"example": handler.ConnectorHandler{Connector: connection}},
-		Dummy: handler.Dummy{
-			Single:   &Example{},
-			Multiple: &[]Example{},
+		"example": handler.HandlerConfig{
+			Handler: handler.ConnectorHandler{Connector: connection},
+			Dummy: handler.Dummy{
+				Single:   &Example{},
+				Multiple: &[]Example{},
+			},
 		},
 	}, 80)
 

@@ -10,10 +10,12 @@ func main() {
 	handle := handler.RestfulHandler{}
 
 	handle.InitRouter(handler.Config{
-		Handler: map[string]handler.HandlerInterface{"example": ExampleHandler{}},
-		Dummy: handler.Dummy{
-			Single:   &Example{},
-			Multiple: &[]Example{},
+		"example": handler.HandlerConfig{
+			Handler: ExampleHandler{},
+			Dummy: handler.Dummy{
+				Single:   &Example{},
+				Multiple: &[]Example{},
+			},
 		},
 	}, 80)
 

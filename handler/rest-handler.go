@@ -18,8 +18,10 @@ type Dummy struct {
 	Multiple interface{}
 }
 
-type Config struct {
-	Handler map[string]HandlerInterface
+type Config map[string]HandlerConfig
+
+type HandlerConfig struct {
+	Handler HandlerInterface
 	Dummy   Dummy
 }
 
@@ -62,21 +64,21 @@ func (t *RestfulHandler) AddContext(next http.Handler) http.Handler {
 		element := chi.URLParam(r, "config-element")
 		isSingle := chi.URLParam(r, "id") != ""
 
-		if _, exists := t.Config.Handler[element]; !exists {
+		if _, exists := t.Config[element]; !exists {
 			w.WriteHeader(404)
 			_, _ = w.Write([]byte("Unknown requested entity. FIX by: adding >" + element + "< to an existing handler."))
 
 			return
 		}
 
-		ctx = context.WithValue(r.Context(), KeyForHandlerInterface, t.Config.Handler[element])
+		ctx = context.WithValue(r.Context(), KeyForHandlerInterface, t.Config[element].Handler)
 		r.WithContext(ctx)
 
 		switch isSingle {
 		case true:
-			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, reflect.New(reflect.ValueOf(t.Config.Dummy.Single).Elem().Type()).Interface())
+			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, reflect.New(reflect.ValueOf(t.Config[element].Dummy.Single).Elem().Type()).Interface())
 		default:
-			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, reflect.New(reflect.ValueOf(t.Config.Dummy.Multiple).Elem().Type()).Interface())
+			ctx = context.WithValue(ctx, KeyForConnectorPlaceholder, reflect.New(reflect.ValueOf(t.Config[element].Dummy.Multiple).Elem().Type()).Interface())
 		}
 
 		next.ServeHTTP(w, r.WithContext(ctx))
