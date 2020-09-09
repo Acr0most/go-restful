@@ -5,6 +5,4 @@ type ConnectorInterface interface {
 	Create(items interface{})
 	Delete(items interface{}, result interface{})
 	Patch(items interface{}, result interface{}, model interface{})
-	// Update(params map[string]interface{}, result interface{})
-	// UpdateOne() interface{}
 }
