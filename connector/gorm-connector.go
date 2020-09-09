@@ -85,7 +85,11 @@ func (t GormConnector) Patch(items interface{}, result interface{}, model interf
 		panic(info.Error)
 	}
 
-	if info.RowsAffected != 0 {
-		info.Updates(result)
+	if info.RowsAffected > 0 {
+		info := info.Updates(result)
+
+		if info.Error != nil {
+			panic(info.Error)
+		}
 	}
 }
