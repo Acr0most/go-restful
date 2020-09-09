@@ -1,5 +1,7 @@
 # about
-This package provides functionality to generate rest routes mapped to your own handler.
+This package provides functionality to generate rest APIs.
+
+You can create your restful API with a given model and the matching database connection. There is no need for create the handling or write new routes and same code over and over again.
 
 # features
 - generate restful api endpoints with your custom handler
