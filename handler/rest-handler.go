@@ -40,6 +40,7 @@ func (t *RestfulHandler) InitRouter(config Config, port int) {
 		r.Get("/", GetOne)
 		r.Post("/", AddOne)
 		r.Delete("/", DeleteOne)
+		r.Patch("/", PatchOne)
 	})
 
 	t.Router.Route("/{config-element}", func(r chi.Router) {
@@ -47,6 +48,7 @@ func (t *RestfulHandler) InitRouter(config Config, port int) {
 		r.Get("/", Get)
 		r.Post("/", Add)
 		r.Delete("/", Delete)
+		r.Patch("/", Patch)
 	})
 }
 

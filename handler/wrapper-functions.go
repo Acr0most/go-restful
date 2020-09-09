@@ -27,3 +27,11 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 func DeleteOne(w http.ResponseWriter, r *http.Request) {
 	r.Context().Value(KeyForHandlerInterface).(HandlerInterface).DeleteOne(w, r)
 }
+
+func Patch(w http.ResponseWriter, r *http.Request) {
+	r.Context().Value(KeyForHandlerInterface).(HandlerInterface).Patch(w, r)
+}
+
+func PatchOne(w http.ResponseWriter, r *http.Request) {
+	r.Context().Value(KeyForHandlerInterface).(HandlerInterface).PatchOne(w, r)
+}

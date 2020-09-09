@@ -77,3 +77,15 @@ func (t GormConnector) Delete(items interface{}, result interface{}) {
 		panic(info.Error)
 	}
 }
+
+func (t GormConnector) Patch(items interface{}, result interface{}, model interface{}) {
+	info := t.DB.Where(items).Find(model)
+
+	if info.Error != nil {
+		panic(info.Error)
+	}
+
+	if info.RowsAffected != 0 {
+		info.Updates(result)
+	}
+}

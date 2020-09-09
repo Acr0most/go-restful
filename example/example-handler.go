@@ -28,3 +28,10 @@ func (t ExampleHandler) DeleteOne(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("example: delete one"))
 }
 
+func (t ExampleHandler) Patch(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte("example: patch"))
+}
+
+func (t ExampleHandler) PatchOne(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte("example: patch one"))
+}

@@ -75,6 +75,32 @@ func (t ConnectorHandler) DeleteOne(w http.ResponseWriter, r *http.Request) {
 	t.Delete(w, r)
 }
 
+func (t ConnectorHandler) Patch(w http.ResponseWriter, r *http.Request) {
+	dummy := r.Context().Value(KeyForConnectorPlaceholder)
+	filter := t.MapParamsFromQuery(r)
+	patch := t.MapParamsFromPost(r)
+
+	id := chi.URLParam(r, "id")
+
+	if id != "" {
+		filter["id"] = id
+	} else {
+		for _, id := range []string{"id", "ID"} {
+			if _, exists := patch[id]; exists {
+				filter[id] = patch[id]
+			}
+		}
+	}
+
+	t.Connector.Patch(filter, patch, dummy)
+
+	_, _ = w.Write([]byte("todo.."))
+}
+
+func (t ConnectorHandler) PatchOne(w http.ResponseWriter, r *http.Request) {
+	t.Patch(w, r)
+}
+
 func (t *ConnectorHandler) MapParamsFromQuery(r *http.Request) (params map[string]interface{}) {
 	query := r.URL.Query()
 	params = make(map[string]interface{}, len(query))
