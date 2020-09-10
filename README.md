@@ -36,6 +36,60 @@ go mod tidy
 ```
 
 # example
+## gorm
+
+- create your model
+
+```go
+import (
+    // ...
+    "github.com/Acr0most/go-restful/model"
+)
+
+type Example struct {
+    model.CommonModelFields
+    Name string `json:"name"`
+}
+```
+- connect to database
+
+```go
+import (
+    // ...
+    "github.com/Acr0most/go-restful/connector"
+)
+
+connection := connector.NewGorm(connector.Config{MaxRetries: 10, IntervalMs: 1000})
+connection.Connect(mysql.Open("<user>:<password>@tcp(<server/ip>:<port>)/<database>?charset=utf8mb4&parseTime=True&loc=Local"))
+```
+
+- init router
+```go
+import (
+    // ...
+    "github.com/Acr0most/go-restful/handler"
+)
+
+handle := handler.RestfulHandler{}
+
+handle.InitRouter(handler.Config{
+    "example": handler.HandlerConfig{
+        Handler: handler.ConnectorHandler{Connector: connection},
+        Dummy: handler.Dummy{
+            Single:   &Example{},
+            Multiple: &[]Example{},
+        },
+    },
+}, 80)
+
+err := handle.Handle()
+
+if err != nil {
+    panic(err)
+}
+```
+
+## basic
 In the example folder you can see a tiny project that creates the server for an example handler.
 
 - Just create the restfulHandler
