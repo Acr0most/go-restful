@@ -68,6 +68,8 @@ func (t GormConnector) Create(items interface{}) {
 	if info.Error != nil {
 		panic(info.Error)
 	}
+
+	t.DB.Find(items)
 }
 
 func (t GormConnector) Delete(items interface{}, result interface{}) {
