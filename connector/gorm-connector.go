@@ -79,6 +79,7 @@ func (t GormConnector) Create(items interface{}) {
 		info = tx.Create(items)
 
 		if info.Error != nil {
+			log.Printf("error %#v", info.Error)
 			return info.Error
 		}
 
@@ -94,7 +95,6 @@ func (t GormConnector) Create(items interface{}) {
 	if err != nil {
 		log.Panic("err", err)
 	}
-
 }
 
 func (t GormConnector) Delete(items interface{}, result interface{}) {
