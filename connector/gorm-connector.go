@@ -3,7 +3,9 @@ package connector
 import (
 	"errors"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"log"
+	"os"
 	"time"
 )
 
@@ -27,7 +29,13 @@ func (t *GormConnector) Connect(dialector gorm.Dialector) {
 	)
 
 	for t.DB == nil {
-		t.DB, err = gorm.Open(dialector, &gorm.Config{})
+		t.DB, err = gorm.Open(dialector, &gorm.Config{
+			Logger: logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+				SlowThreshold: 500 * time.Millisecond,
+				LogLevel:      logger.Warn,
+				Colorful:      true,
+			}),
+		})
 
 		if err != nil {
 			count++
