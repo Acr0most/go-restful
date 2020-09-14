@@ -1,6 +1,7 @@
 package connector
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"log"
 	"time"
@@ -43,19 +44,28 @@ func (t *GormConnector) Connect(dialector gorm.Dialector) {
 }
 
 func (t GormConnector) Find(params map[string]interface{}, result interface{}) (success bool) {
-	var info *gorm.DB
+	err := t.DB.Transaction(func(tx *gorm.DB) error {
+		var info *gorm.DB
 
-	if len(params) > 0 {
-		info = t.DB.Where(params).Find(result)
-	} else {
-		info = t.DB.Find(result)
-	}
+		if len(params) > 0 {
+			if info = tx.Where(params).Find(result); info.Error != nil {
+				return info.Error
+			}
+		} else {
+			if info = tx.Find(result); info.Error != nil {
+				return info.Error
+			}
+		}
 
-	if info.Error != nil {
-		panic(info.Error)
-	}
+		if info.RowsAffected == 0 {
+			return errors.New("CUSTOM:5 no rows effected")
+		}
 
-	if info.RowsAffected == 0 {
+		return nil
+	})
+
+	if err != nil {
+		log.Panic("err", err)
 		return false
 	}
 
@@ -63,35 +73,63 @@ func (t GormConnector) Find(params map[string]interface{}, result interface{}) (
 }
 
 func (t GormConnector) Create(items interface{}) {
-	info := t.DB.Create(items)
+	err := t.DB.Transaction(func(tx *gorm.DB) error {
+		var info *gorm.DB
 
-	if info.Error != nil {
-		panic(info.Error)
+		info = tx.Create(items)
+
+		if info.Error != nil {
+			return info.Error
+		}
+
+		info = tx.Find(items)
+
+		if info.Error != nil {
+			return info.Error
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic("err", err)
 	}
 
-	t.DB.Find(items)
 }
 
 func (t GormConnector) Delete(items interface{}, result interface{}) {
 	info := t.DB.Where(items).Delete(result)
 
 	if info.Error != nil {
-		panic(info.Error)
+		log.Panic("err", info.Error)
 	}
 }
 
 func (t GormConnector) Patch(items interface{}, result interface{}, model interface{}) {
-	info := t.DB.Where(items).Find(model)
+	err := t.DB.Transaction(func(tx *gorm.DB) error {
+		var info *gorm.DB
 
-	if info.Error != nil {
-		panic(info.Error)
-	}
-
-	if info.RowsAffected > 0 {
-		info := info.Updates(result)
+		info = tx.Where(items).Find(model)
 
 		if info.Error != nil {
-			panic(info.Error)
+			return info.Error
 		}
+
+		if info.RowsAffected == 0 {
+			return errors.New("no row affected")
+		}
+
+		info = info.Updates(result)
+
+		if info.Error != nil {
+			return info.Error
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic("err", err)
 	}
+
 }
