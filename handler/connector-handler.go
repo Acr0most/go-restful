@@ -16,8 +16,12 @@ func (t ConnectorHandler) Get(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
 	request := r.Context().Value(middleware.RequestKey).(middleware.Request)
 
-	if success := t.Connector.Find(request.Filter, dummy); !success {
-		dummy = nil
+	if err := t.Connector.Find(request.Filter, dummy); err != nil {
+		w.WriteHeader(405)
+		_, _ = w.Write([]byte("error while find entity: " + err.Error()))
+
+		return
+
 	}
 
 	t.CreateResponse(w, dummy)
@@ -37,7 +41,13 @@ func (t ConnectorHandler) Add(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	t.Connector.Create(dummy)
+	if err := t.Connector.Create(dummy); err != nil {
+		w.WriteHeader(405)
+		_, _ = w.Write([]byte("error while creating entity: " + err.Error()))
+
+		return
+	}
+
 	t.CreateResponse(w, dummy)
 }
 
@@ -57,7 +67,12 @@ func (t ConnectorHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
 	request := r.Context().Value(middleware.RequestKey).(middleware.Request)
 
-	t.Connector.Delete(request.GetMerged(), dummy)
+	if err := t.Connector.Delete(request.GetMerged(), dummy); err != nil {
+		w.WriteHeader(405)
+		_, _ = w.Write([]byte("error while delete entity: " + err.Error()))
+
+		return
+	}
 
 	_, _ = w.Write([]byte("done"))
 }
@@ -70,7 +85,12 @@ func (t ConnectorHandler) Patch(w http.ResponseWriter, r *http.Request) {
 	dummy := r.Context().Value(KeyForConnectorPlaceholder)
 	request := r.Context().Value(middleware.RequestKey).(middleware.Request)
 
-	t.Connector.Patch(request.Filter, request.GetPayload(), dummy)
+	if err := t.Connector.Patch(request.Filter, request.GetPayload(), dummy); err != nil {
+		w.WriteHeader(405)
+		_, _ = w.Write([]byte("error while patching entity: " + err.Error()))
+
+		return
+	}
 
 	_, _ = w.Write([]byte("todo.."))
 }

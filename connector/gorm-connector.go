@@ -51,8 +51,8 @@ func (t *GormConnector) Connect(dialector gorm.Dialector) {
 	log.Println("GORM connected..")
 }
 
-func (t GormConnector) Find(params map[string]interface{}, result interface{}) (success bool) {
-	err := t.DB.Transaction(func(tx *gorm.DB) error {
+func (t GormConnector) Find(params map[string]interface{}, result interface{}) (err error) {
+	return t.DB.Transaction(func(tx *gorm.DB) error {
 		var info *gorm.DB
 
 		if len(params) > 0 {
@@ -71,17 +71,10 @@ func (t GormConnector) Find(params map[string]interface{}, result interface{}) (
 
 		return nil
 	})
-
-	if err != nil {
-		log.Panic("err", err)
-		return false
-	}
-
-	return true
 }
 
-func (t GormConnector) Create(items interface{}) {
-	err := t.DB.Transaction(func(tx *gorm.DB) error {
+func (t GormConnector) Create(items interface{}) (err error) {
+	return t.DB.Transaction(func(tx *gorm.DB) error {
 		var info *gorm.DB
 
 		info = tx.Create(items)
@@ -98,22 +91,14 @@ func (t GormConnector) Create(items interface{}) {
 
 		return nil
 	})
-
-	if err != nil {
-		log.Panic("err", err)
-	}
 }
 
-func (t GormConnector) Delete(items interface{}, result interface{}) {
-	info := t.DB.Where(items).Delete(result)
-
-	if info.Error != nil {
-		log.Panic("err", info.Error)
-	}
+func (t GormConnector) Delete(items interface{}, result interface{}) (err error) {
+	return t.DB.Where(items).Delete(result).Error
 }
 
-func (t GormConnector) Patch(items interface{}, result interface{}, model interface{}) {
-	err := t.DB.Transaction(func(tx *gorm.DB) error {
+func (t GormConnector) Patch(items interface{}, result interface{}, model interface{}) (err error) {
+	return t.DB.Transaction(func(tx *gorm.DB) error {
 		var info *gorm.DB
 
 		info = tx.Where(items).Find(model)
@@ -134,9 +119,4 @@ func (t GormConnector) Patch(items interface{}, result interface{}, model interf
 
 		return nil
 	})
-
-	if err != nil {
-		log.Panic("err", err)
-	}
-
 }
