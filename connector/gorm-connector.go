@@ -90,7 +90,7 @@ func (t GormConnector) Create(items interface{}) {
 			return info.Error
 		}
 
-		info = info.Find(items)
+		info = tx.Find(items)
 
 		if info.Error != nil {
 			return info.Error
@@ -126,7 +126,7 @@ func (t GormConnector) Patch(items interface{}, result interface{}, model interf
 			return errors.New("no row affected")
 		}
 
-		info = info.Updates(result)
+		info = tx.Updates(result)
 
 		if info.Error != nil {
 			return info.Error
