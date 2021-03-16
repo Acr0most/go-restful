@@ -92,12 +92,6 @@ func (t GormConnector) Create(items interface{}) (err error) {
 			return info.Error
 		}
 
-		info = tx.Find(items)
-
-		if info.Error != nil {
-			return info.Error
-		}
-
 		return nil
 	})
 }
