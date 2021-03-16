@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -56,6 +57,18 @@ func (t GormConnector) Find(params map[string]interface{}, result interface{}) (
 		var info *gorm.DB
 
 		if len(params) > 0 {
+			joins := make(map[string]interface{}, len(params))
+
+			for key := range params {
+				if strings.Contains(key, ".") {
+					joins[strings.Split(key, ".")[0]] = 1
+				}
+			}
+
+			for asso := range joins {
+				tx = tx.Joins(asso)
+			}
+
 			if info = tx.Where(params).Find(result); info.Error != nil {
 				return info.Error
 			}
