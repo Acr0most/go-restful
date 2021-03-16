@@ -78,10 +78,6 @@ func (t GormConnector) Find(params map[string]interface{}, result interface{}) (
 			}
 		}
 
-		if info.RowsAffected == 0 {
-			return errors.New("CUSTOM:5 no rows effected")
-		}
-
 		return nil
 	})
 }
